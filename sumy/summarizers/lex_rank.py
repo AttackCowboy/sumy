@@ -41,6 +41,17 @@ class LexRankSummarizer(AbstractSummarizer):
         tf_metrics = self._compute_tf(sentences_words)
         idf_metrics = self._compute_idf(sentences_words)
 
+        # tf_s_w = count of how many times a word from the query appears in the given sentence
+        #          Matrix dimensions: rows = words in query, cols = sentences in doc
+        # tf_w_q = count of how many times a word from the query appearss in the query (constant for the query, expanded to have same dims as above):
+        #          Matrix dimensions: rows = words in query, cols = sentences in doc
+        #
+        # rel_matrix = sum-over-words-in-query(log(tf_s_w + 1)*log(tf_w_q)*idf_metrics)
+
+        # Lastly, divide rel matrix by sum of all sentences' relevances
+        # rel_matrix = rel_matrix/sum-over-rows(rel_matrix)
+
+
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
