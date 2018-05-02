@@ -104,7 +104,7 @@ class LexRankSummarizer(AbstractSummarizer):
 
     def _compute_tf_w_s(self, sentences, query):
         query_set = set(query)
-        return self._compute_tf([set(s).intersection(query_set) for s in sentences])
+        return self._compute_tf([[w for w in s if w in query_set] for s in sentences])
 
 
     def _compute_tf_w_q(self, query):
