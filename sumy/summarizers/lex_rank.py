@@ -56,7 +56,8 @@ class LexRankSummarizer(AbstractSummarizer):
         query_words = self._to_words_set(query.sentences[0])
         print(query_words)
         print(sentences_words[:2])
-        tf_w_s_metrics = self._compute_tf_w_s([set(s).intersection(set(query_words)) for s in sentences_words], query_words)
+        query_set = set(query_words)
+        tf_w_s_metrics = self._compute_tf_w_s([set(s).intersection(query_set) for s in sentences_words], query_words)
         tf_w_q_metrics = self._compute_tf_w_q(query_words)
 
 
