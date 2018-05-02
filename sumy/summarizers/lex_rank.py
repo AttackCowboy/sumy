@@ -110,7 +110,7 @@ class LexRankSummarizer(AbstractSummarizer):
 
     def _compute_tf_w_q(self, query):
 
-        tf_values = map(Counter, query)
+        tf_values = map(Counter, [query])
 
         tf_w_q_metrics = []
         for sentence in tf_values:
