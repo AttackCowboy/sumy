@@ -53,7 +53,7 @@ class LexRankSummarizer(AbstractSummarizer):
         # Lastly, divide rel matrix by sum of all sentences' relevances
         # rel_matrix = rel_matrix/sum-over-rows(rel_matrix)
 
-        query_words = [self._to_words_set(query)]
+        query_words = [self._to_words_set(query.sentences[0])]
 
         tf_w_s_metrics = self._compute_tf_w_s([s.intersection(query_words) for s in sentences_words], query_words)
         tf_w_q_metrics = self._compute_tf_w_q(query_words)
