@@ -177,6 +177,7 @@ class LexRankSummarizer(AbstractSummarizer):
         return matrix
 
     def _create_idf_rel_matrix(self, query_words, idf_metrics):
+        query_words = query_words[0]
         idf_matrix = numpy.zeros([len(query_words),])
         idx = 0
         for word in query_words:
