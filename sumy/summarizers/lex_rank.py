@@ -31,7 +31,7 @@ class LexRankSummarizer(AbstractSummarizer):
     def stop_words(self, words):
         self._stop_words = frozenset(map(self.normalize_word, words))
 
-    def __call__(self, document, sentences_count):
+    def __call__(self, document, sentences_count, query): # query is a Sentence object
         self._ensure_dependencies_installed()
 
         sentences_words = [self._to_words_set(s) for s in document.sentences]
@@ -41,18 +41,32 @@ class LexRankSummarizer(AbstractSummarizer):
         tf_metrics = self._compute_tf(sentences_words)
         idf_metrics = self._compute_idf(sentences_words)
 
-        # tf_s_w = count of how many times a word from the query appears in the given sentence
-        #          Matrix dimensions: rows = words in query, cols = sentences in doc
+        ##############################################################################################
+
+        # tf_w_s = count of how many times a word from the query appears in the given sentence
+        #          Matrix dimensions: rows = sentences in doc, cols = words in query
         # tf_w_q = count of how many times a word from the query appearss in the query (constant for the query, expanded to have same dims as above):
-        #          Matrix dimensions: rows = words in query, cols = sentences in doc
+        #          Matrix dimensions: rows = sentences in doc, cols = words in query
         #
         # rel_matrix = sum-over-words-in-query(log(tf_s_w + 1)*log(tf_w_q)*idf_metrics)
 
         # Lastly, divide rel matrix by sum of all sentences' relevances
         # rel_matrix = rel_matrix/sum-over-rows(rel_matrix)
 
+        query_words = self._to_words_set(query) 
+
+        tf_w_s = self._compute_tf_w_s(sentences_words, query_words)
+        tf_w_q = self._compute_tf_w_q(sentences_words, query_words)
+
+        idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
+
+        rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
+        rel_matrix = rel_matrix/numpy.sum(rel_matrix,axis=0)
+
+        ##############################################################################################
 
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
+        matrix = matrix + rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
 
@@ -82,6 +96,20 @@ class LexRankSummarizer(AbstractSummarizer):
 
         return tf_metrics
 
+    def _compute_tf_w_s(self, sentences, query):
+
+        tf_w_s = numpy.zeros([len(sentences),len(query)])
+
+        return tf_w_s
+
+    def _compute_tf_w_q(self, sentences, query):
+
+        tf_w_q = numpy.zeros([len(sentences),len(query)])
+
+        return tf_w_q
+
+
+
     @staticmethod
     def _find_tf_max(terms):
         return max(terms.values()) if terms else 1
@@ -98,7 +126,7 @@ class LexRankSummarizer(AbstractSummarizer):
                     idf_metrics[term] = math.log(sentences_count / (1 + n_j))
 
         return idf_metrics
-
+    
     def _create_matrix(self, sentences, threshold, tf_metrics, idf_metrics):
         """
         Creates matrix of shape |sentences|×|sentences|.
@@ -126,6 +154,14 @@ class LexRankSummarizer(AbstractSummarizer):
                 matrix[row][col] = matrix[row][col] / degrees[row]
 
         return matrix
+
+    def _create_idf_rel_matrix(self, query_words, idf_metrics):
+        idf_matrix = numpy.zeros([len(query_words),])
+        idx = 0
+        for word in query_words:
+            idf_matrix[idx] = idf_metrics[word]
+            idx += 1
+        return idf_matrix
 
     @staticmethod
     def cosine_similarity(sentence1, sentence2, tf1, tf2, idf_metrics):
