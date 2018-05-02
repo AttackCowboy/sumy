@@ -49,15 +49,20 @@ class LexRankSummarizer(AbstractSummarizer):
         #          Matrix dimensions: rows = sentences in doc, cols = words in query
         #
         # rel_matrix = sum-over-words-in-query(log(tf_s_w + 1)*log(tf_w_q)*idf_metrics)
-
+        
         # Lastly, divide rel matrix by sum of all sentences' relevances
         # rel_matrix = rel_matrix/sum-over-rows(rel_matrix)
 
-        query_words = self._to_words_set(query) 
+        query_words = self._to_words_set(query)
 
-        tf_w_s = self._compute_tf_w_s(sentences_words, query_words)
-        tf_w_q = self._compute_tf_w_q(sentences_words, query_words)
+        tf_w_s_metrics = self._compute_tf_w_s(sentences_words, query_words)
+        tf_w_q_metrics = self._compute_tf_w_q(query_words)
 
+
+        # Create tf_w_s matrix (currently all zeros)
+        tf_w_s = numpy.zeros([len(sentences_words),len(query_words)])
+        # Create tf_w_q matrix (currently all zeros)
+        tf_w_q = numpy.zeros([len(sentences_words),len(query_words)])
         idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
 
         rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
@@ -102,11 +107,26 @@ class LexRankSummarizer(AbstractSummarizer):
 
         return tf_w_s
 
-    def _compute_tf_w_q(self, sentences, query):
+    def _compute_tf_w_q(self, query):
 
-        tf_w_q = numpy.zeros([len(sentences),len(query)])
+        tf_values = map(Counter, query)
 
-        return tf_w_q
+        tf_w_q_metrics = []
+        for sentence in tf_values:
+
+            print("============")
+            print(sentence)
+            print("============")
+
+            metrics = {}
+            max_tf = self._find_tf_max(sentence)
+
+            for term, tf in sentence.items():
+                metrics[term] = tf / max_tf
+
+            tf_w_q_metrics.append(metrics)
+
+        return tf_w_q_metrics
 
 
 
