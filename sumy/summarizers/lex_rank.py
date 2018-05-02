@@ -58,6 +58,10 @@ class LexRankSummarizer(AbstractSummarizer):
         print(sentences_words[:2])
         tf_w_s_metrics = self._compute_tf_w_s(sentences_words, query_words)
         tf_w_q_metrics = self._compute_tf_w_q(query_words)
+        print("tf_metrics\n",tf_metrics)
+        print("idf_metrics\n", idf_metrics)
+        print("tf_w_s_metrics\n", tf_w_s_metrics)
+        print("tf_w_q_metrics\n", tf_w_q_metrics)
 
 
         # Create tf_w_s matrix (currently all zeros)
