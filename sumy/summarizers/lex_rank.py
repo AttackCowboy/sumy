@@ -179,6 +179,17 @@ class LexRankSummarizer(AbstractSummarizer):
 
         return matrix
 
+    def _create_tf_w_s_matrix(self, tf_w_s_metrics, query_words):
+        tf_w_s_matrix = np.zeros((len(tf_w_s_metrics),len(query_words)))
+        for row_ind in range(len(tf_w_s_metrics)):
+            for col_ind in range(len(query_words)):
+                cur_metrics = tf_w_s_metrics[row_ind]
+                try:
+                    tf_w_s_matrix[row_ind, col_ind] = cur_metrics[query_words[col_ind]]
+                except:
+                    pass
+        return tf_w_s_matrix
+
     def _create_idf_rel_matrix(self, query_words, idf_metrics):
         idf_matrix = numpy.zeros([len(query_words),])
         idx = 0
