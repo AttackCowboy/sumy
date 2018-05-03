@@ -58,16 +58,13 @@ class LexRankSummarizer(AbstractSummarizer):
         print(sentences_words[:2])
         tf_w_s_metrics = self._compute_tf_w_s(sentences_words, query_words)
         tf_w_q_metrics = self._compute_tf_w_q(query_words)
-        print("tf_metrics\n",tf_metrics)
-        print("idf_metrics\n", idf_metrics)
-        print("tf_w_s_metrics\n", tf_w_s_metrics)
-        print("tf_w_q_metrics\n", tf_w_q_metrics)
-
 
         # Create tf_w_s matrix (currently all zeros)
-        tf_w_s = numpy.zeros([len(sentences_words),len(query_words)])
+        tf_w_s = self._create_tf_q_matrix(tf_w_s_metrics, query_words)
+        print("tf_w_s shape", tf_w_s.shape)
         # Create tf_w_q matrix (currently all zeros)
-        tf_w_q = numpy.zeros([len(sentences_words),len(query_words)])
+        tf_w_q = self._create_tf_q_matrix(tf_w_q_metrics, query_words)
+        print("tf_w_q shape ", tf_w_q.shape)
         idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
 
         rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
@@ -179,7 +176,7 @@ class LexRankSummarizer(AbstractSummarizer):
 
         return matrix
 
-    def _create_tf_w_s_matrix(self, tf_w_s_metrics, query_words):
+    def _create_tf_q_matrix(self, tf_w_s_metrics, query_words):
         tf_w_s_matrix = np.zeros((len(tf_w_s_metrics),len(query_words)))
         for row_ind in range(len(tf_w_s_metrics)):
             for col_ind in range(len(query_words)):
