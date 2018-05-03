@@ -177,7 +177,7 @@ class LexRankSummarizer(AbstractSummarizer):
         return matrix
 
     def _create_tf_q_matrix(self, tf_w_s_metrics, query_words):
-        tf_w_s_matrix = np.zeros((len(tf_w_s_metrics),len(query_words)))
+        tf_w_s_matrix = numpy.zeros((len(tf_w_s_metrics),len(query_words)))
         for row_ind in range(len(tf_w_s_metrics)):
             for col_ind in range(len(query_words)):
                 cur_metrics = tf_w_s_metrics[row_ind]
