@@ -73,9 +73,8 @@ class LexRankSummarizer(AbstractSummarizer):
         ##############################################################################################
 
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
-        print(numpy.sum(matrix,axis=0))
-        matrix = matrix + rel_matrix
-        print(numpy.sum(matrix,axis=0))
+        bias_weight = 0.15
+        matrix = (1-bias_weight)*matrix + bias_weight*rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
 
