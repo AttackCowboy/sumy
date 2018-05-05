@@ -246,9 +246,10 @@ class LexRankSummarizer(AbstractSummarizer):
         sentences_count = len(matrix)
         p_vector = numpy.array([1.0 / sentences_count] * sentences_count)
         lambda_val = 1.0
-
+        print(p_vector)
         while lambda_val > epsilon:
             next_p = numpy.dot(transposed_matrix, p_vector)
+            print(next_p)
             lambda_val = numpy.linalg.norm(numpy.subtract(next_p, p_vector))
             p_vector = next_p
 
