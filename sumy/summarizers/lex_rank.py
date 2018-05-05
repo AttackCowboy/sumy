@@ -64,7 +64,7 @@ class LexRankSummarizer(AbstractSummarizer):
 #        print("tf_w_s shape", tf_w_s.shape)
         # Create tf_w_q matrix (currently all zeros)
         tf_w_q = self._create_tf_q_matrix(tf_w_q_metrics, query_words)
-#        print("tf_w_q shape ", tf_w_q.shape)
+       # print("tf_w_q shape ", tf_w_q.shape)
         idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
 
         rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
