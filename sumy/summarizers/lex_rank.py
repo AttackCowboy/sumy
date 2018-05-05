@@ -69,13 +69,11 @@ class LexRankSummarizer(AbstractSummarizer):
 
         rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
         rel_matrix = rel_matrix/numpy.sum(rel_matrix,axis=0)
-        print("rel shape ",rel_matrix.shape)
 
         ##############################################################################################
 
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
-        print("old matrix shape", matrix.shape)
-        matrix = matrix + rel_matrix
+        # matrix = matrix + rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
 
