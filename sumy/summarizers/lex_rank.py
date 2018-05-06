@@ -31,7 +31,7 @@ class LexRankSummarizer(AbstractSummarizer):
     def stop_words(self, words):
         self._stop_words = frozenset(map(self.normalize_word, words))
 
-    def __call__(self, document, sentences_count, query): # query is a Sentence object
+    def __call__(self, document, sentences_count, query, query_weight=None): # query is a Sentence object
         self._ensure_dependencies_installed()
 
         sentences_words = [self._to_words_set(s) for s in document.sentences]
@@ -73,8 +73,9 @@ class LexRankSummarizer(AbstractSummarizer):
         ##############################################################################################
 
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
-        bias_weight = 0.15
-        matrix = (1-bias_weight)*matrix + bias_weight*rel_matrix
+        if query_weight is None:
+            query_weight = 0.15
+        matrix = (1-query_weight)*matrix + query_weight*rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
 
