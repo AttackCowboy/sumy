@@ -52,29 +52,32 @@ class LexRankSummarizer(AbstractSummarizer):
         
         # Lastly, divide rel matrix by sum of all sentences' relevances
         # rel_matrix = rel_matrix/sum-over-rows(rel_matrix)
+        if query:
+            query_words = self._to_words_set(query.sentences[0])
+            tf_w_s_metrics = self._compute_tf_w_s(sentences_words, query_words)
+            tf_w_q_metrics = self._compute_tf_w_q(query_words)
 
-        query_words = self._to_words_set(query.sentences[0])
-#        print(query_words)
-#        print(sentences_words[:2])
-        tf_w_s_metrics = self._compute_tf_w_s(sentences_words, query_words)
-        tf_w_q_metrics = self._compute_tf_w_q(query_words)
-
-        # Create tf_w_s matrix (currently all zeros)
-        tf_w_s = self._create_tf_q_matrix(tf_w_s_metrics, query_words)
-#        print("tf_w_s shape", tf_w_s.shape)
-        # Create tf_w_q matrix (currently all zeros)
-        tf_w_q = self._create_tf_q_matrix(tf_w_q_metrics, query_words)
-       # print("tf_w_q shape ", tf_w_q.shape)
-        idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
-
-        rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
-        rel_matrix = rel_matrix/numpy.sum(rel_matrix,axis=0)
-
+            # Create tf_w_s matrix (currently all zeros)
+            tf_w_s = self._create_tf_q_matrix(tf_w_s_metrics, query_words)
+            # print("tf_w_s shape", tf_w_s.shape)
+            # Create tf_w_q matrix (currently all zeros)
+            tf_w_q = self._create_tf_q_matrix(tf_w_q_metrics, query_words)
+            # print("tf_w_q shape ", tf_w_q.shape)
+            idf_rel_matrix = self._create_idf_rel_matrix(query_words, idf_metrics)
+            
+            rel_matrix = numpy.sum((numpy.log(tf_w_s + 1) * numpy.log(tf_w_q + 1) * idf_rel_matrix),axis=1)
+            rel_matrix = rel_matrix/numpy.sum(rel_matrix,axis=0)
+            
+        else:
+            query_weight = 0
+            rel_matrix = numpy.zeros([len(sentences_words),])
+            
         ##############################################################################################
 
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
         if query_weight is None:
             query_weight = 0.15
+        print(query_weight)
         matrix = (1-query_weight)*matrix + query_weight*rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
@@ -116,10 +119,6 @@ class LexRankSummarizer(AbstractSummarizer):
 
         tf_w_q_metrics = []
         for sentence in tf_values:
-
-#            print("============")
-#            print(sentence)
-#            print("============")
 
             metrics = {}
             max_tf = self._find_tf_max(sentence)
