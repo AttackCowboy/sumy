@@ -77,7 +77,6 @@ class LexRankSummarizer(AbstractSummarizer):
         matrix = self._create_matrix(sentences_words, self.threshold, tf_metrics, idf_metrics)
         if query_weight is None:
             query_weight = 0.15
-        print(query_weight)
         matrix = (1-query_weight)*matrix + query_weight*rel_matrix
         scores = self.power_method(matrix, self.epsilon)
         ratings = dict(zip(document.sentences, scores))
