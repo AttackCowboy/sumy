@@ -15,6 +15,9 @@ class DefaultWordTokenizer(object):
     def tokenize(self, text):
         return nltk.word_tokenize(text)
 
+class nltkSentTokenizer:
+    def tokenize(self, text):
+        return nltk.tokenize.sent_tokenize(text)
 
 class JapaneseWordTokenizer:
     def tokenize(self, text):
@@ -53,7 +56,8 @@ class Tokenizer(object):
 
     SPECIAL_SENTENCE_TOKENIZERS = {
         'japanese': nltk.RegexpTokenizer('[^　！？。]*[！？。]'),
-        'chinese': nltk.RegexpTokenizer('[^　！？。]*[！？。]')
+        'chinese': nltk.RegexpTokenizer('[^　！？。]*[！？。]'),
+        'english': nltkSentTokenizer()
     }
 
     SPECIAL_WORD_TOKENIZERS = {
